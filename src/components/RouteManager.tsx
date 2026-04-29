@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ChargingStation } from '../utils/api';
-import { X, MapPin, Route, Trash2, Clock, Navigation, Loader2 } from 'lucide-react';
+import { X, MapPin, Route, Trash2, Clock, Navigation, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
@@ -38,95 +38,131 @@ const RouteManager: React.FC<RouteManagerProps> = ({
 
   return (
     <div className={cn(
-      "absolute rounded-3xl border border-white/60 bg-white/95 p-3 shadow-2xl shadow-slate-950/15 backdrop-blur-xl transition-all duration-300 w-[calc(100vw-2rem)] max-w-sm",
-      expanded ? "top-20 right-4 left-4 h-auto sm:left-auto" : "top-20 right-4 left-auto h-auto",
-      "z-20 sm:w-96"
+      "absolute right-4 top-20 z-20 w-[calc(100vw-2rem)] max-w-[22rem] overflow-hidden rounded-2xl border border-white/70 bg-white/95 shadow-xl shadow-slate-950/15 backdrop-blur-xl transition-all duration-300 sm:w-80",
+      expanded && "left-4 right-4 max-w-none sm:left-auto sm:max-w-[22rem]"
     )}>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center">
-          <Route className="h-5 w-5 mr-2 text-blue-500" />
-          <h3 className="font-semibold text-sm">Rute Perjalanan</h3>
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-3 py-2.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <Route className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold leading-tight">Mode Rute</h3>
+            <p className="text-xs text-muted-foreground">{selectedStops.length} tujuan dipilih</p>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
+          <Badge variant="outline" className="rounded-full border-blue-100 bg-blue-50 text-xs text-blue-700">
+            {selectedStops.length}
+          </Badge>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-7 w-7 p-0" 
+            className="h-8 w-8 rounded-full p-0" 
             onClick={() => setExpanded(!expanded)}
           >
-            {expanded ? 
-              <X className="h-4 w-4 text-gray-500" /> :
-              <span className="text-xs font-medium text-blue-500">{selectedStops.length}</span>
-            }
+            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </div>
       </div>
 
-      {expanded && (
-        <>
-          <ScrollArea className="max-h-60 pr-2">
-            <div className="space-y-3 mt-2">
+      <div className="p-3">
+        {!expanded ? (
+          <div className="space-y-3">
+            <p className="text-xs leading-5 text-muted-foreground">
+              Pilih minimal 2 stasiun dari daftar, lalu mulai rute.
+            </p>
+            <Button
+              variant="default"
+              size="sm"
+              className="h-9 w-full rounded-xl bg-blue-500 text-xs font-semibold hover:bg-blue-600"
+              onClick={onStartRoute}
+              disabled={selectedStops.length < 2 || isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                <>
+                  <Navigation className="mr-1.5 h-3.5 w-3.5" />
+                  Mulai Rute
+                </>
+              )}
+            </Button>
+          </div>
+        ) : (
+          <>
+          <ScrollArea className="max-h-56 pr-2">
+            <div className="space-y-2">
               {selectedStops.map((stop, index) => (
                 <div 
                   key={String(stop.id)}
-                  className="relative flex items-start rounded-2xl bg-gray-50 p-3"
+                  className="relative flex items-start rounded-2xl border border-slate-100 bg-slate-50/80 p-3"
                 >
-                  <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-700 text-xs font-medium mr-2 mt-1">
+                  <div className="mr-2 mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
                     {index + 1}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm line-clamp-1">{stop.addressInfo.title}</p>
-                    <p className="text-xs text-gray-500 line-clamp-1">
+                  <div className="min-w-0 flex-1 pr-5">
+                    <p className="line-clamp-1 text-sm font-medium">{stop.addressInfo.title}</p>
+                    <p className="line-clamp-1 text-xs text-muted-foreground">
                       {stop.addressInfo.addressLine1}, {stop.addressInfo.town}
                     </p>
                     {stop.distance !== undefined && (
-                      <div className="flex items-center mt-1">
-                        <MapPin className="h-3 w-3 mr-1 text-gray-400" />
-                        <span className="text-xs text-gray-500">{formatDistance(stop.distance)}</span>
+                      <div className="mt-1 flex items-center">
+                        <MapPin className="mr-1 h-3 w-3 text-blue-400" />
+                        <span className="text-xs text-muted-foreground">{formatDistance(stop.distance)}</span>
                       </div>
                     )}
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 ml-1 absolute top-1 right-1"
+                    className="absolute right-1.5 top-1.5 h-6 w-6 rounded-full p-0"
                     onClick={() => onRemoveStop(stop.id)}
                   >
-                    <X className="h-3 w-3 text-gray-400" />
+                    <X className="h-3 w-3 text-muted-foreground" />
                   </Button>
                 </div>
               ))}
             </div>
           </ScrollArea>
 
-          <div className="flex flex-col mt-3 pt-2 border-t border-gray-100">
+          <div className="mt-3 border-t border-slate-100 pt-3">
             {(totalDistance || totalDuration) && (
-              <div className="flex items-center justify-between mb-2 text-xs text-gray-600">
-                <div className="flex items-center">
-                  <Navigation className="h-3.5 w-3.5 mr-1 text-blue-500" />
+              <div className="mb-3 grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-xl bg-blue-50 px-3 py-2 text-blue-700">
+                  <div className="mb-0.5 flex items-center text-[11px] text-blue-500">
+                    <Navigation className="mr-1 h-3.5 w-3.5" />
+                    Jarak
+                  </div>
                   <span>{totalDistance ? `${(totalDistance/1000).toFixed(1)} km` : 'Jarak tidak diketahui'}</span>
                 </div>
-                <div className="flex items-center">
-                  <Clock className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                <div className="rounded-xl bg-blue-50 px-3 py-2 text-blue-700">
+                  <div className="mb-0.5 flex items-center text-[11px] text-blue-500">
+                    <Clock className="mr-1 h-3.5 w-3.5" />
+                    Waktu
+                  </div>
                   <span>{totalDuration ? formatDuration(totalDuration) : 'Waktu tidak diketahui'}</span>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 flex-1 rounded-full text-xs"
+                className="h-9 flex-1 rounded-xl text-xs"
                 onClick={onClearRoute}
               >
                 <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                Hapus Rute
+                Hapus
               </Button>
               <Button
                 variant="default"
                 size="sm"
-                className="h-8 flex-1 rounded-full bg-blue-500 text-xs hover:bg-blue-600"
+                className="h-9 flex-1 rounded-xl bg-blue-500 text-xs font-semibold hover:bg-blue-600"
                 onClick={onStartRoute}
                 disabled={selectedStops.length < 2 || isLoading}
               >
@@ -138,14 +174,15 @@ const RouteManager: React.FC<RouteManagerProps> = ({
                 ) : (
                   <>
                     <Navigation className="h-3.5 w-3.5 mr-1.5" />
-                    Mulai Rute
+                    Mulai
                   </>
                 )}
               </Button>
             </div>
           </div>
         </>
-      )}
+        )}
+      </div>
     </div>
   );
 };

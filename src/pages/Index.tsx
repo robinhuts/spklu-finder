@@ -535,9 +535,6 @@ const Index = () => {
     <div className="relative h-screen w-full overflow-hidden bg-slate-950">
       <Toaster />
 
-      <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.30),_transparent_34%),linear-gradient(180deg,_rgba(15,23,42,0.72)_0%,_rgba(15,23,42,0.10)_32%,_rgba(15,23,42,0)_58%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-32 bg-gradient-to-b from-slate-950/70 to-transparent" />
-      
       {/* Search Bar */}
       <div className="absolute left-0 right-0 top-4 z-20 mx-auto flex max-w-3xl justify-center px-4 md:px-6 animate-fade-in">
         <div className="w-full">
@@ -612,15 +609,15 @@ const Index = () => {
       
       {/* Route Planning Toggle Button */}
       {userLocation && !locationRequired && (
-        <div className="absolute left-4 top-20 z-20 md:top-[22rem]">
+        <div className="absolute left-4 top-20 z-20 md:top-24">
           <Button
             variant={isRoutePlanActive ? "default" : "outline"}
             size="sm"
-            className={`h-11 rounded-full border-white/30 px-4 text-xs shadow-xl backdrop-blur-md ${isRoutePlanActive ? 'bg-blue-500 hover:bg-blue-600' : 'bg-white/90 hover:bg-white'}`}
+            className={`h-9 rounded-full border-white/50 px-3 text-xs shadow-lg backdrop-blur-md ${isRoutePlanActive ? 'bg-blue-500 hover:bg-blue-600' : 'bg-white/95 hover:bg-white'}`}
             onClick={toggleRoutePlanMode}
           >
-            <Route className="h-4 w-4 mr-1.5" />
-            {isRoutePlanActive ? 'Mode Rute Aktif' : 'Rencanakan Rute'}
+            <Route className="mr-1.5 h-3.5 w-3.5" />
+            {isRoutePlanActive ? 'Rute aktif' : 'Mode rute'}
           </Button>
         </div>
       )}
