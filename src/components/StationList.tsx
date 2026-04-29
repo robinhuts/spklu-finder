@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import { ChargingStation } from '../utils/api';
 import StationCard from './StationCard';
-import { ChevronUp, ChevronDown, Loader2, MapPin, Route } from 'lucide-react';
+import { ChevronUp, ChevronDown, Loader2, MapPin, Route, PanelBottomClose } from 'lucide-react';
 import { Button } from './ui/button';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { compareIds } from '../lib/utils';
@@ -14,6 +14,8 @@ interface StationListProps {
   onDirectionsClick: (station: ChargingStation) => void;
   expanded: boolean;
   onToggleExpand: () => void;
+  hidden?: boolean;
+  onToggleHidden?: () => void;
   isLoadingDirections?: boolean;
   selectedStops?: ChargingStation[];
   isRoutePlanActive?: boolean;
@@ -26,6 +28,8 @@ const StationList: React.FC<StationListProps> = ({
   onDirectionsClick,
   expanded,
   onToggleExpand,
+  hidden = false,
+  onToggleHidden,
   isLoadingDirections = false,
   selectedStops = [],
   isRoutePlanActive = false
@@ -91,32 +95,56 @@ const StationList: React.FC<StationListProps> = ({
               : 'Cari lokasi atau gunakan lokasi saat ini untuk mulai.'}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-9 shrink-0 rounded-full px-3 text-muted-foreground hover:text-foreground"
-          onClick={onToggleExpand}
-        >
-          {expanded ? (
-            <>
-              <ChevronDown className="h-4 w-4 mr-1" />
-              <span className="text-sm">Ciutkan</span>
-            </>
-          ) : (
-            <>
-              <ChevronUp className="h-4 w-4 mr-1" />
-              <span className="text-sm">Perluas</span>
-            </>
+        <div className="flex shrink-0 items-center gap-2">
+          {onToggleHidden && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 rounded-full px-3 text-muted-foreground hover:text-foreground"
+              onClick={onToggleHidden}
+            >
+              {hidden ? (
+                <>
+                  <ChevronUp className="mr-1 h-4 w-4" />
+                  <span className="text-sm">Tampilkan</span>
+                </>
+              ) : (
+                <>
+                  <PanelBottomClose className="mr-1 h-4 w-4" />
+                  <span className="hidden text-sm sm:inline">Sembunyikan</span>
+                </>
+              )}
+            </Button>
           )}
-        </Button>
+          {!hidden && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 rounded-full px-3 text-muted-foreground hover:text-foreground"
+              onClick={onToggleExpand}
+            >
+              {expanded ? (
+                <>
+                  <ChevronDown className="mr-1 h-4 w-4" />
+                  <span className="text-sm">Ciutkan</span>
+                </>
+              ) : (
+                <>
+                  <ChevronUp className="mr-1 h-4 w-4" />
+                  <span className="text-sm">Perluas</span>
+                </>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
 
-      {isLoading ? (
+      {!hidden && isLoading ? (
         <div className="flex flex-col items-center justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <p className="mt-4 text-muted-foreground">Memuat stasiun pengisian...</p>
         </div>
-      ) : safeStations.length === 0 ? (
+      ) : !hidden && safeStations.length === 0 ? (
         <div className="text-center py-8">
           <MapPin className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
           <p className="text-muted-foreground mt-4">Tidak ada stasiun pengisian ditemukan.</p>
@@ -124,10 +152,10 @@ const StationList: React.FC<StationListProps> = ({
             Coba ubah lokasi Anda atau perluas area pencarian.
           </p>
         </div>
-      ) : (
+      ) : !hidden ? (
         <div 
           ref={parentRef} 
-          className={expanded ? "h-[60vh] overflow-auto pr-1" : "h-[252px] overflow-auto pr-1"}
+          className={expanded ? "h-[60vh] overflow-auto pr-1" : "h-[150px] overflow-auto pr-1"}
           style={{ position: 'relative' }}
         >
           <div
@@ -176,7 +204,7 @@ const StationList: React.FC<StationListProps> = ({
             })}
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
