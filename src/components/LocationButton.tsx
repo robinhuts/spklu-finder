@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from './ui/button';
-import { Loader2, MapPin, Locate, LocateFixed } from 'lucide-react';
+import { Loader2, LocateFixed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LocationButtonProps {
@@ -20,7 +20,7 @@ const LocationButton: React.FC<LocationButtonProps> = ({
       variant="secondary"
       size="lg"
       className={cn(
-        "glassmorphism border shadow-md hover:shadow-lg transition-all duration-300",
+        "glassmorphism h-12 rounded-full border shadow-xl hover:shadow-2xl transition-all duration-300",
         className
       )}
       onClick={onGetLocation}

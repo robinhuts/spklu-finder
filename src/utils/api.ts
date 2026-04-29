@@ -1,5 +1,6 @@
 
 import { toast } from "../components/ui/use-toast";
+import { MAPBOX_API_KEY, hasMapboxApiKey } from "./mapbox";
 
 export interface ChargingStation {
   id: number;
@@ -81,16 +82,17 @@ export interface SearchParams {
   countryCode?: string;
 }
 
-interface NominatimResponse {
-  lat: string;
-  lon: string;
-  display_name: string;
-}
-
 export async function searchLocation(query: string): Promise<{ latitude: number; longitude: number } | null> {
   try {
-    // Use Mapbox Geocoding API instead of Nominatim
-    const MAPBOX_API_KEY = 'pk.eyJ1IjoiYW5nZzB4IiwiYSI6ImNtOGU0b3ZleDAzMW4ycW9mbHY1YXhtdTQifQ.cZL2sxCvBSXQDSqZ1aL-hQ';
+    if (!hasMapboxApiKey()) {
+      toast({
+        title: "Konfigurasi Mapbox belum tersedia",
+        description: "Tambahkan VITE_MAPBOX_API_KEY untuk mencari lokasi.",
+        variant: "destructive"
+      });
+      return null;
+    }
+
     const searchQuery = encodeURIComponent(`${query},Indonesia`);
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchQuery}.json?country=id&limit=1&access_token=${MAPBOX_API_KEY}`;
     

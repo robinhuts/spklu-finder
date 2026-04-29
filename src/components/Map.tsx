@@ -11,6 +11,7 @@ import { useLiveTracking } from '../hooks/useLiveTracking';
 import { createLocationMarker } from './map/LocationMarker';
 import { clusterStations } from '../lib/utils';
 import { throttle } from '../lib/utils';
+import { MAPBOX_API_KEY } from '../utils/mapbox';
 
 interface MapProps {
   stations: ChargingStation[];
@@ -27,7 +28,7 @@ const Map: React.FC<MapProps> = ({
   userLocation, 
   onStationClick,
   selectedStation,
-  apiKey = 'pk.eyJ1IjoiYW5nZzB4IiwiYSI6ImNtOGU0b3ZleDAzMW4ycW9mbHY1YXhtdTQifQ.cZL2sxCvBSXQDSqZ1aL-hQ',
+  apiKey = MAPBOX_API_KEY,
   directionsRoute,
   searchedLocation
 }) => {
@@ -258,25 +259,33 @@ const Map: React.FC<MapProps> = ({
   }, [directionsRoute, mapLoaded, updateRouteSource]);
 
   return (
-    <div className="relative w-full h-full rounded-xl overflow-hidden bg-gray-100">
+    <div className="relative h-full w-full overflow-hidden bg-gray-100">
       <div ref={mapContainer} className="map-container h-full w-full" />
       
-      <div className="absolute bottom-4 left-4 bg-white bg-opacity-80 p-2 rounded-lg shadow-md">
-        <p className="text-sm font-medium">
+      <div className="absolute bottom-4 left-4 rounded-2xl border border-white/60 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md">
+        <p className="text-sm font-semibold text-slate-800">
           {stations.length > 0 
             ? `${stations.length} Stasiun Ditemukan` 
             : userLocation 
               ? "Tidak ada stasiun dalam radius pencarian" 
-              : "Waiting for location..."}
+              : "Menunggu lokasi..."}
         </p>
       </div>
       
       {directionsRoute && directionsRoute.properties?.distance && directionsRoute.properties?.duration && (
-        <div className="absolute bottom-4 right-4 bg-white p-3 rounded-lg shadow-md">
+        <div className="absolute bottom-4 right-4 rounded-2xl border border-white/60 bg-white/95 p-4 shadow-xl backdrop-blur-md">
           <div className="text-sm">
-            <p className="font-medium">Info Rute</p>
-            <p>Jarak: {(directionsRoute.properties.distance / 1000).toFixed(1)} km</p>
-            <p>Waktu: {Math.round(directionsRoute.properties.duration / 60)} menit</p>
+            <p className="font-semibold text-slate-800">Info Rute</p>
+            <div className="mt-2 grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs text-muted-foreground">Jarak</p>
+                <p className="font-semibold">{(directionsRoute.properties.distance / 1000).toFixed(1)} km</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Waktu</p>
+                <p className="font-semibold">{Math.round(directionsRoute.properties.duration / 60)} menit</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

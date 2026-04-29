@@ -4,7 +4,7 @@ import { ChargingStation } from '../utils/api';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Navigation, Phone, Globe, Info, MapPin, Zap, Clock, ExternalLink, CreditCard, Plug, Cable, Loader2, Route } from 'lucide-react';
+import { Navigation, MapPin, Zap, Clock, CreditCard, Plug, Loader2, Route, Gauge } from 'lucide-react';
 import { formatDistance } from '../utils/distance';
 import { cn } from '@/lib/utils';
 
@@ -48,7 +48,6 @@ const StationCard: React.FC<StationCardProps> = ({
     'offline': 'Tidak Beroperasi'
   };
   
-  const totalPower = connections.reduce((sum, conn) => sum + (conn.powerKW || 0), 0);
   const highestPower = connections.reduce((max, conn) => Math.max(max, conn.powerKW || 0), 0);
   
   const handleDirectionsClick = (e: React.MouseEvent) => {
@@ -58,12 +57,12 @@ const StationCard: React.FC<StationCardProps> = ({
 
   return (
     <Card className={cn(
-      "w-full transition-all duration-300 hover:shadow-md", 
-      isActive && "border-blue-400 shadow-md bg-blue-50/30",
-      isInRoute && "border-green-400 shadow-md bg-green-50/30",
+      "w-full overflow-hidden border-slate-200/80 bg-white/95 transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-xl dark:bg-slate-900/95", 
+      isActive && "border-blue-400 shadow-xl bg-blue-50/60",
+      isInRoute && "border-green-400 shadow-xl bg-green-50/60",
       className
     )}>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-3">
         <div className="flex justify-between items-start gap-2">
           <div className="flex items-start gap-2">
             {isInRoute && routeIndex !== undefined && (
@@ -72,8 +71,8 @@ const StationCard: React.FC<StationCardProps> = ({
               </div>
             )}
             <div>
-              <CardTitle className="text-lg font-semibold line-clamp-1">{addressInfo.title}</CardTitle>
-              <CardDescription className="flex items-center mt-1">
+              <CardTitle className="line-clamp-1 text-lg font-semibold tracking-tight">{addressInfo.title}</CardTitle>
+              <CardDescription className="mt-1 flex items-center">
                 <MapPin className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
                 <span className="line-clamp-1">
                   {addressInfo.addressLine1}, {addressInfo.town}
@@ -103,23 +102,32 @@ const StationCard: React.FC<StationCardProps> = ({
       </CardHeader>
       
       <CardContent className="pb-4">
-        <div className="grid grid-cols-2 gap-y-2 gap-x-4 mt-1 text-sm">
-          <div className="flex items-center text-muted-foreground">
-            <Zap className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
-            <span>{connections.length} Konektor</span>
+        <div className="mt-1 grid grid-cols-2 gap-2 text-sm">
+          <div className="rounded-xl bg-slate-50 p-3 text-slate-600">
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Zap className="mr-1.5 h-3.5 w-3.5 text-blue-500" />
+              Konektor
+            </div>
+            <p className="mt-1 font-semibold text-foreground">{connections.length}</p>
           </div>
-          <div className="flex items-center text-muted-foreground">
-            <Clock className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
+          <div className="rounded-xl bg-slate-50 p-3 text-slate-600">
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Gauge className="mr-1.5 h-3.5 w-3.5 text-blue-500" />
+              Daya Maks.
+            </div>
+            <p className="mt-1 font-semibold text-foreground">{highestPower || '-'} kW</p>
+          </div>
+          <div className="col-span-2 flex items-center text-muted-foreground">
+            <Clock className="mr-1.5 h-3.5 w-3.5 text-blue-500" />
             <span>24 Jam</span>
           </div>
-          {/* Add price information */}
-          <div className="flex items-center text-muted-foreground col-span-2">
-            <CreditCard className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
+          <div className="col-span-2 flex items-center text-muted-foreground">
+            <CreditCard className="mr-1.5 h-3.5 w-3.5 text-blue-500" />
             <span>Biaya: {usageCost || "Tidak ada informasi"}</span>
           </div>
           {distance !== undefined && (
-            <div className="flex items-center text-muted-foreground col-span-2">
-              <Navigation className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
+            <div className="col-span-2 flex items-center text-muted-foreground">
+              <Navigation className="mr-1.5 h-3.5 w-3.5 text-blue-500" />
               <span>{formatDistance(distance)}</span>
             </div>
           )}
@@ -131,7 +139,7 @@ const StationCard: React.FC<StationCardProps> = ({
             {connections.slice(0, 3).map((connection, index) => (
               <div 
                 key={index} 
-                className="flex items-center justify-between text-sm p-2 bg-secondary rounded-md"
+                className="flex items-center justify-between rounded-xl bg-secondary/80 p-2.5 text-sm"
               >
                 <div className="flex flex-col">
                   <div className="flex items-center mb-1">
@@ -162,7 +170,7 @@ const StationCard: React.FC<StationCardProps> = ({
       <CardFooter className="flex-col gap-2">
         <Button 
           className={cn(
-            "w-full transition-all duration-200",
+            "h-11 w-full rounded-xl font-semibold transition-all duration-200",
             isInRoute 
               ? "bg-green-500 hover:bg-green-600" 
               : "bg-blue-500 hover:bg-blue-600"

@@ -10,7 +10,9 @@ import { getDirections, getMultiStopDirections } from '../utils/directions';
 import { toast } from '../components/ui/use-toast';
 import { Toaster } from '../components/ui/toaster';
 import { Button } from '../components/ui/button';
-import { Route } from 'lucide-react';
+import { Badge } from '../components/ui/badge';
+import { LocateFixed, MapPin, Route, ShieldCheck, Zap } from 'lucide-react';
+import { MAPBOX_API_KEY, hasMapboxApiKey } from '../utils/mapbox';
 
 const Index = () => {
   // State for map and stations
@@ -34,6 +36,10 @@ const Index = () => {
   
   // UI state
   const [expanded, setExpanded] = useState(false);
+  const availableStations = filteredStations.filter(station => station.status === 'available').length;
+  const fastChargingStations = filteredStations.filter(station =>
+    station.connections.some(connection => (connection.powerKW || 0) >= 50)
+  ).length;
   
   // Load stations when user location is available
   const loadStations = useCallback(async (location?: { latitude: number; longitude: number }) => {
@@ -384,6 +390,15 @@ const Index = () => {
       return;
     }
     
+    if (!hasMapboxApiKey()) {
+      toast({
+        variant: "destructive",
+        title: "Konfigurasi Mapbox belum tersedia",
+        description: "Tambahkan VITE_MAPBOX_API_KEY untuk menggunakan perencanaan rute.",
+      });
+      return;
+    }
+
     setIsLoadingDirections(true);
     toast({
       title: "Memuat rute",
@@ -393,7 +408,7 @@ const Index = () => {
     try {
       const route = await getMultiStopDirections(
         selectedStops,
-        'pk.eyJ1IjoiYW5nZzB4IiwiYSI6ImNtOGU0b3ZleDAzMW4ycW9mbHY1YXhtdTQifQ.cZL2sxCvBSXQDSqZ1aL-hQ'
+        MAPBOX_API_KEY
       );
       
       if (route) {
@@ -443,6 +458,15 @@ const Index = () => {
       return;
     }
     
+    if (!hasMapboxApiKey()) {
+      toast({
+        variant: "destructive",
+        title: "Konfigurasi Mapbox belum tersedia",
+        description: "Tambahkan VITE_MAPBOX_API_KEY untuk menggunakan petunjuk arah.",
+      });
+      return;
+    }
+
     setIsLoadingDirections(true);
     toast({
       title: "Memuat rute",
@@ -453,7 +477,7 @@ const Index = () => {
       const route = await getDirections({
         origin: [userLocation.latitude, userLocation.longitude],
         destination: [station.addressInfo.latitude, station.addressInfo.longitude],
-        apiKey: 'pk.eyJ1IjoiYW5nZzB4IiwiYSI6ImNtOGU0b3ZleDAzMW4ycW9mbHY1YXhtdTQifQ.cZL2sxCvBSXQDSqZ1aL-hQ'
+        apiKey: MAPBOX_API_KEY
       });
       
       if (route) {
@@ -507,12 +531,15 @@ const Index = () => {
   }, [filteredStations]);
   
   return (
-    <div className="relative h-screen w-full bg-background overflow-hidden">
+    <div className="relative h-screen w-full overflow-hidden bg-slate-950">
       <Toaster />
+
+      <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.30),_transparent_34%),linear-gradient(180deg,_rgba(15,23,42,0.72)_0%,_rgba(15,23,42,0.10)_32%,_rgba(15,23,42,0)_58%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-32 bg-gradient-to-b from-slate-950/70 to-transparent" />
       
       {/* Search Bar */}
-      <div className="absolute top-4 left-0 right-0 z-10 px-4 md:px-6 mx-auto max-w-2xl animate-fade-in flex justify-center">
-        <div className="w-full md:w-full lg:w-[32rem] mr-8 sm:mr-12 md:mr-16">
+      <div className="absolute left-0 right-0 top-4 z-20 mx-auto flex max-w-3xl justify-center px-4 md:px-6 animate-fade-in">
+        <div className="w-full">
           <SearchBar 
             onSearch={handleSearch}
             onLocationSearch={handleLocationSearch}
@@ -520,6 +547,41 @@ const Index = () => {
             onGetUserLocation={getUserLocation}
             isLocating={isLocating}
           />
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute left-4 right-4 top-24 z-10 hidden max-w-[23rem] animate-slide-down rounded-3xl border border-white/20 bg-slate-950/70 p-5 text-white shadow-2xl shadow-sky-950/30 backdrop-blur-xl md:block">
+        <Badge className="mb-3 border border-cyan-300/30 bg-cyan-400/15 text-cyan-100 hover:bg-cyan-400/15">
+          SPKLU Finder
+        </Badge>
+        <h1 className="text-3xl font-bold leading-tight tracking-tight">
+          Temukan charger EV terdekat dengan cepat.
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-slate-200">
+          Cari lokasi, lihat status stasiun, bandingkan konektor, dan rencanakan rute pengisian dalam satu peta.
+        </p>
+        <div className="mt-5 grid grid-cols-3 gap-2">
+          <div className="rounded-2xl bg-white/10 p-3">
+            <div className="flex items-center gap-1.5 text-cyan-200">
+              <MapPin className="h-3.5 w-3.5" />
+              <span className="text-[11px] uppercase tracking-wide">Stasiun</span>
+            </div>
+            <p className="mt-1 text-xl font-semibold">{filteredStations.length}</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-3">
+            <div className="flex items-center gap-1.5 text-emerald-200">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span className="text-[11px] uppercase tracking-wide">Tersedia</span>
+            </div>
+            <p className="mt-1 text-xl font-semibold">{availableStations}</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-3">
+            <div className="flex items-center gap-1.5 text-amber-200">
+              <Zap className="h-3.5 w-3.5" />
+              <span className="text-[11px] uppercase tracking-wide">Fast</span>
+            </div>
+            <p className="mt-1 text-xl font-semibold">{fastChargingStations}</p>
+          </div>
         </div>
       </div>
       
@@ -549,11 +611,11 @@ const Index = () => {
       
       {/* Route Planning Toggle Button */}
       {userLocation && !locationRequired && (
-        <div className="absolute top-20 left-4 z-10">
+        <div className="absolute left-4 top-20 z-20 md:top-[22rem]">
           <Button
             variant={isRoutePlanActive ? "default" : "outline"}
             size="sm"
-            className={`text-xs ${isRoutePlanActive ? 'bg-blue-500 hover:bg-blue-600' : ''}`}
+            className={`h-11 rounded-full border-white/30 px-4 text-xs shadow-xl backdrop-blur-md ${isRoutePlanActive ? 'bg-blue-500 hover:bg-blue-600' : 'bg-white/90 hover:bg-white'}`}
             onClick={toggleRoutePlanMode}
           >
             <Route className="h-4 w-4 mr-1.5" />
@@ -564,10 +626,20 @@ const Index = () => {
       
       {/* Location Button - Only show if no user location yet */}
       {!userLocation && !isLocating && (
-        <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 z-10 w-64 animate-slide-up">
+        <div className="absolute bottom-40 left-1/2 z-20 w-[min(22rem,calc(100vw-2rem))] -translate-x-1/2 animate-slide-up">
+          <div className="mb-3 rounded-3xl border border-white/20 bg-slate-950/80 p-4 text-center text-white shadow-2xl backdrop-blur-xl">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/15 text-cyan-200">
+              <LocateFixed className="h-6 w-6" />
+            </div>
+            <h2 className="text-lg font-semibold">Mulai dari lokasi Anda</h2>
+            <p className="mt-1 text-sm text-slate-300">
+              Izinkan lokasi untuk menampilkan SPKLU terdekat dan estimasi jarak.
+            </p>
+          </div>
           <LocationButton 
             onGetLocation={getUserLocation}
             isLocating={isLocating}
+            className="w-full"
           />
         </div>
       )}
@@ -589,7 +661,8 @@ const Index = () => {
       
       {/* Station List - Only show if user location is found */}
       {!locationRequired && (
-        <div className="absolute bottom-0 left-0 right-0 z-10 bg-background rounded-t-xl shadow-lg animate-slide-up">
+        <div className="absolute bottom-0 left-0 right-0 z-20 animate-slide-up rounded-t-[2rem] border border-white/60 bg-background/95 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
+          <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-muted-foreground/20" />
           <StationList 
             stations={filteredStations}
             isLoading={isLoading}

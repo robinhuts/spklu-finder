@@ -17,7 +17,7 @@ interface DirectionsResponse {
       type: string;
     };
     legs: Array<{
-      steps: Array<any>;
+      steps: Array<unknown>;
       summary: string;
       distance: number;
       duration: number;

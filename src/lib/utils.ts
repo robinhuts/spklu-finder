@@ -1,26 +1,27 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { type ChargingStation } from "../utils/api"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
+export function debounce<Args extends unknown[], Result>(
+  func: (...args: Args) => Result,
   wait: number
-): (...args: Parameters<T>) => void {
+): (...args: Args) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  
-  return function(...args: Parameters<T>) {
+
+  return function(...args: Args) {
     const later = () => {
       timeout = null;
       func(...args);
     };
-    
+
     if (timeout !== null) {
       clearTimeout(timeout);
     }
-    
+
     timeout = setTimeout(later, wait);
   };
 }
@@ -29,13 +30,13 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
+export function throttle<Args extends unknown[], Result>(
+  func: (...args: Args) => Result,
   limit: number
-): (...args: Parameters<T>) => void {
+): (...args: Args) => void {
   let inThrottle: boolean = false;
   
-  return function(...args: Parameters<T>) {
+  return function(...args: Args) {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
@@ -62,7 +63,7 @@ export function compareIds(id1: string | number | null, id2: string | number | n
 }
 
 export function clusterStations(
-  stations: any[], 
+  stations: ChargingStation[], 
   zoom: number,
   bounds: { north: number; south: number; east: number; west: number }
 ): { 
@@ -70,9 +71,9 @@ export function clusterStations(
     longitude: number; 
     latitude: number; 
     count: number; 
-    stations: any[];
+    stations: ChargingStation[];
   }>;
-  singleStations: any[];
+  singleStations: ChargingStation[];
 } {
   if (zoom >= 14) {
     return { 
@@ -92,7 +93,7 @@ export function clusterStations(
            latitude <= bounds.north + padding;
   });
   
-  const clusters: Array<{ longitude: number; latitude: number; count: number; stations: any[] }> = [];
+  const clusters: Array<{ longitude: number; latitude: number; count: number; stations: ChargingStation[] }> = [];
   const processed = new Set<string | number>();
   
   withinBounds.forEach(station => {
