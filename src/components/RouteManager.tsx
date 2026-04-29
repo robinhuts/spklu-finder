@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ChargingStation } from '../utils/api';
-import { X, MapPin, Route, Trash2, Clock, Navigation } from 'lucide-react';
+import { X, MapPin, Route, Trash2, Clock, Navigation, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
@@ -38,9 +38,9 @@ const RouteManager: React.FC<RouteManagerProps> = ({
 
   return (
     <div className={cn(
-      "absolute bg-white shadow-lg rounded-lg p-3 transition-all duration-300 w-80",
-      expanded ? "top-20 right-4 left-auto h-auto" : "top-20 right-4 left-auto h-auto",
-      "z-10 sm:w-96"
+      "absolute rounded-3xl border border-white/60 bg-white/95 p-3 shadow-2xl shadow-slate-950/15 backdrop-blur-xl transition-all duration-300 w-[calc(100vw-2rem)] max-w-sm",
+      expanded ? "top-20 right-4 left-4 h-auto sm:left-auto" : "top-20 right-4 left-auto h-auto",
+      "z-20 sm:w-96"
     )}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center">
@@ -69,7 +69,7 @@ const RouteManager: React.FC<RouteManagerProps> = ({
               {selectedStops.map((stop, index) => (
                 <div 
                   key={String(stop.id)}
-                  className="flex items-start bg-gray-50 rounded-md p-2 relative"
+                  className="relative flex items-start rounded-2xl bg-gray-50 p-3"
                 >
                   <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-700 text-xs font-medium mr-2 mt-1">
                     {index + 1}
@@ -117,7 +117,7 @@ const RouteManager: React.FC<RouteManagerProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1 text-xs h-8"
+                className="h-8 flex-1 rounded-full text-xs"
                 onClick={onClearRoute}
               >
                 <Trash2 className="h-3.5 w-3.5 mr-1.5" />
@@ -126,13 +126,13 @@ const RouteManager: React.FC<RouteManagerProps> = ({
               <Button
                 variant="default"
                 size="sm"
-                className="flex-1 text-xs h-8 bg-blue-500 hover:bg-blue-600"
+                className="h-8 flex-1 rounded-full bg-blue-500 text-xs hover:bg-blue-600"
                 onClick={onStartRoute}
                 disabled={selectedStops.length < 2 || isLoading}
               >
                 {isLoading ? (
                   <>
-                    <span className="h-3.5 w-3.5 mr-1.5 animate-spin">◌</span>
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     Memproses...
                   </>
                 ) : (

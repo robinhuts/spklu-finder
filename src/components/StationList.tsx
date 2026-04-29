@@ -4,7 +4,6 @@ import { ChargingStation } from '../utils/api';
 import StationCard from './StationCard';
 import { ChevronUp, ChevronDown, Loader2, MapPin, Route } from 'lucide-react';
 import { Button } from './ui/button';
-import { ScrollArea } from './ui/scroll-area';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { compareIds } from '../lib/utils';
 
@@ -60,6 +59,8 @@ const StationList: React.FC<StationListProps> = ({
   
   // Make sure stations is always an array to prevent issues
   const safeStations = Array.isArray(stations) ? stations : [];
+  const availableStations = safeStations.filter(station => station.status === 'available').length;
+  const nearestStationDistance = safeStations[0]?.distance;
   
   // Create the virtualizer
   const rowVirtualizer = useVirtualizer({
@@ -70,21 +71,30 @@ const StationList: React.FC<StationListProps> = ({
   });
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold flex items-center">
-          Stasiun Pengisian Terdekat
-          {isRoutePlanActive && (
-            <span className="ml-2 text-sm font-normal text-blue-500 flex items-center">
-              <Route className="h-4 w-4 mr-1" />
-              Mode Rute Aktif
-            </span>
-          )}
-        </h2>
+    <div className="p-4 pt-3 md:p-5 md:pt-4">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Stasiun Pengisian Terdekat
+            </h2>
+            {isRoutePlanActive && (
+              <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                <Route className="mr-1 h-3.5 w-3.5" />
+                Mode Rute
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {safeStations.length > 0
+              ? `${safeStations.length} stasiun ditemukan · ${availableStations} tersedia${nearestStationDistance !== undefined ? ` · terdekat ${nearestStationDistance.toFixed(1)} km` : ''}`
+              : 'Cari lokasi atau gunakan lokasi saat ini untuk mulai.'}
+          </p>
+        </div>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="flex items-center text-muted-foreground hover:text-foreground"
+          className="h-9 shrink-0 rounded-full px-3 text-muted-foreground hover:text-foreground"
           onClick={onToggleExpand}
         >
           {expanded ? (
@@ -117,7 +127,7 @@ const StationList: React.FC<StationListProps> = ({
       ) : (
         <div 
           ref={parentRef} 
-          className={expanded ? "h-[60vh] overflow-auto" : "h-[230px] overflow-auto"}
+          className={expanded ? "h-[60vh] overflow-auto pr-1" : "h-[252px] overflow-auto pr-1"}
           style={{ position: 'relative' }}
         >
           <div
