@@ -6,8 +6,6 @@ import { useMapbox } from '../hooks/useMapbox';
 import { createUserLocationMarker } from './map/UserLocationMarker';
 import { createStationMarker } from './map/StationMarker';
 import { createStationCluster } from './map/StationCluster';
-import { createVehicleMarker } from './map/VehicleMarker';
-import { useLiveTracking } from '../hooks/useLiveTracking';
 import { createLocationMarker } from './map/LocationMarker';
 import { clusterStations } from '../lib/utils';
 import { throttle } from '../lib/utils';
@@ -39,7 +37,6 @@ const Map: React.FC<MapProps> = ({
     mapLoaded,
     markersRef,
     userMarkerRef,
-    vehicleMarkerRef,
     locationMarkerRef,
     initializeMap,
     clearMap,
@@ -70,11 +67,6 @@ const Map: React.FC<MapProps> = ({
     }
   }, 300)).current;
 
-  const { location: liveLocation } = useLiveTracking({
-    enabled: true,
-    updateInterval: 5000
-  });
-
   // Initialize map
   useEffect(() => {
     initializeMap();
@@ -99,24 +91,6 @@ const Map: React.FC<MapProps> = ({
       }
     };
   }, [mapLoaded, updateMapViewData]);
-
-  // Handle live location updates - create vehicle marker only if different from user position
-  useEffect(() => {
-    if (!map.current || !mapLoaded || !liveLocation) return;
-    
-    // Only show vehicle marker if we're actively tracking and moving
-    // and it's different from the static user location marker
-    if (userLocation && 
-        Math.abs(liveLocation.latitude - userLocation.latitude) > 0.0001 && 
-        Math.abs(liveLocation.longitude - userLocation.longitude) > 0.0001) {
-      
-      createVehicleMarker({
-        map: map.current,
-        location: liveLocation,
-        markerRef: vehicleMarkerRef
-      });
-    }
-  }, [liveLocation, mapLoaded, userLocation]);
 
   // Handle user location updates - ensure we only create marker when location actually changes
   useEffect(() => {
@@ -312,7 +286,6 @@ const Map: React.FC<MapProps> = ({
         <div className="absolute top-20 right-4 bg-white bg-opacity-80 p-2 rounded-lg shadow-md max-w-xs text-xs overflow-auto max-h-40">
           <p className="font-medium">Debug Info:</p>
           <p>Map Loaded: {mapLoaded ? 'Yes' : 'No'}</p>
-          <p>Live Location: {liveLocation ? `${liveLocation.latitude.toFixed(4)}, ${liveLocation.longitude.toFixed(4)}` : 'None'}</p>
           <p>User Location: {userLocation ? `${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}` : 'None'}</p>
           <p>Stations Count: {stations.length}</p>
           <p>Markers Count: {markersRef.current.length}</p>

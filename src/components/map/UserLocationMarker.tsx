@@ -17,20 +17,25 @@ export const createUserLocationMarker = ({ map, location, markerRef }: UserLocat
 
   // Create marker element
   const userMarkerElement = document.createElement('div');
-  userMarkerElement.className = 'user-marker flex items-center justify-center relative';
+  userMarkerElement.className = 'user-marker';
   userMarkerElement.style.width = '24px';
   userMarkerElement.style.height = '24px';
   
   const userDot = document.createElement('div');
-  userDot.className = 'w-4 h-4 bg-blue-500 rounded-full border-2 border-white z-10';
+  userDot.className = 'relative z-10 h-4 w-4 rounded-full border-2 border-white bg-blue-500 shadow-md';
   userMarkerElement.appendChild(userDot);
 
   const pulseRing = document.createElement('div');
-  pulseRing.className = 'absolute w-12 h-12 rounded-full border-4 border-blue-300 animate-ping';
+  pulseRing.className = 'absolute h-10 w-10 rounded-full border-4 border-blue-300/80 animate-ping';
   userMarkerElement.appendChild(pulseRing);
 
   // Create and store the marker
-  markerRef.current = new mapboxgl.Marker(userMarkerElement)
+  markerRef.current = new mapboxgl.Marker({
+    element: userMarkerElement,
+    anchor: 'center',
+    pitchAlignment: 'map',
+    rotationAlignment: 'map',
+  })
     .setLngLat([location.longitude, location.latitude])
     .addTo(map);
 

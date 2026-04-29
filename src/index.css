@@ -170,7 +170,8 @@
   }
 
   .station-marker {
-    @apply w-6 h-6 rounded-full flex items-center justify-center shadow-md transition-all duration-200 cursor-pointer;
+    @apply flex items-center justify-center rounded-full transition-transform duration-200 cursor-pointer;
+    transform-origin: center center;
   }
 
   .station-marker:hover {
@@ -190,7 +191,13 @@
   }
 
   .user-marker {
-    @apply w-8 h-8 rounded-full bg-blue-500 border-2 border-white shadow-lg flex items-center justify-center text-white;
+    @apply relative flex items-center justify-center rounded-full text-white;
+    transform-origin: center center;
+  }
+
+  .location-marker {
+    @apply relative flex items-center justify-center rounded-full;
+    transform-origin: center center;
   }
 
   .vehicle-marker {
@@ -213,4 +220,3 @@
     }
   }
 }
-
