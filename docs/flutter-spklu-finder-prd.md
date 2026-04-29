@@ -2,30 +2,30 @@
 
 ## 1. Document Purpose
 
-This PRD defines the requirements to rebuild the existing SPKLU Finder web application as a new Flutter project while preserving the current user experience, UI layout, API behavior, and core feature set.
+This PRD defines the requirements to rebuild SPKLU Finder as a new Flutter project while preserving the API behavior, product flows, and core feature set.
 
-The Flutter implementation must look and behave as close as possible to the current application state in this repository. The goal is not to redesign the app, but to create a native/mobile Flutter version with the same map-first experience, station search, route planning, station bottom sheet, marker behavior, and toast feedback.
+The Flutter implementation does not need to visually clone the current React web UI. The goal is feature parity: a native/mobile Flutter app with the same map-first experience, station search, route planning, station list, marker behavior, and user feedback.
 
 ## 2. Product Summary
 
 SPKLU Finder helps electric vehicle users in Indonesia find nearby charging stations, view station availability and connector details, search by location, and plan charging routes across selected stations.
 
-The current app is a Vite + React + TypeScript web app using Mapbox GL, Open Charge Map API, Tailwind, shadcn-ui, and browser geolocation. The new project should be a Flutter app that consumes the same APIs and mirrors the current UI.
+The current app is a Vite + React + TypeScript web app using Mapbox GL, Open Charge Map API, Tailwind, shadcn-ui, and browser geolocation. The new project should be a Flutter app that consumes equivalent APIs and implements equivalent features using Flutter-native UI patterns.
 
-## 3. Non-Negotiable UI Requirement
+## 3. Product Experience Requirement
 
-The Flutter UI must be visually equivalent to the current app.
+The Flutter UI does not need to be visually identical to the current web app. It must provide the same capabilities and must be optimized for native mobile use.
 
-Required matching areas:
+Required experience areas:
 
-- Fullscreen map as the main canvas.
-- Search bar floating at the top with rounded glass/card styling.
+- Fullscreen or primary map as the main canvas.
+- Search bar for location search and suggestions.
 - User location call-to-action when location is not yet granted.
-- Floating route mode toggle button.
-- Route manager panel when route mode has selected stops.
-- Bottom sheet for `Stasiun Pengisian Terdekat`.
-- Bottom sheet can be expanded, collapsed, and hidden downward.
-- Station cards must use the same compact card hierarchy:
+- Route mode control.
+- Route manager when route mode has selected stops.
+- Station list for `Stasiun Pengisian Terdekat`.
+- Station list can be collapsed/expanded and should not block essential map usage.
+- Station cards must show the same information hierarchy:
   - Station title.
   - Address.
   - Availability badge.
@@ -34,15 +34,14 @@ Required matching areas:
   - Distance.
   - Connector list.
   - Direction/route button.
-- Map markers must match current behavior:
+- Map markers must preserve current behavior:
   - One user-location marker only.
   - SPKLU station markers by status.
   - Search location marker.
   - Cluster marker behavior if implemented.
-- Toast/snackbar style must be compact, clean, rounded, and unobtrusive like the current updated toast.
-- No top gradient overlay on the map.
+- Toast/snackbar feedback must be compact and unobtrusive.
 
-Flutter implementation should use responsive constraints so the UI matches the current mobile-first behavior and still works on tablets/web if supported.
+Detailed Flutter UI guidance is defined separately in [`flutter-spklu-ui-prd.md`](./flutter-spklu-ui-prd.md). The UI PRD is intentionally independent from the current React source and should be used as the design/interaction reference for the Flutter project.
 
 ## 4. Target Platforms
 
@@ -553,7 +552,7 @@ The app must explain why location is needed before or during permission request.
 
 ### 7.7 Search Requirements
 
-- Top floating search bar should preserve current behavior.
+- Search bar should preserve the same functional behavior.
 - Debounced geocoding suggestions after 3 characters.
 - Suggestions list appears under the search bar.
 - Clear button resets search query and station filter.
@@ -582,32 +581,32 @@ Current behavior includes station search/filtering by query and location-based s
 
 ## 8. UI Specification
 
+Detailed UI requirements are maintained in the standalone UI PRD: [`flutter-spklu-ui-prd.md`](./flutter-spklu-ui-prd.md). This section summarizes the required UI capabilities only.
+
 ### 8.1 Main Screen Layout
 
-Stack layout:
+Recommended mobile layout:
 
-1. Fullscreen Mapbox map.
-2. Top floating search bar.
-3. Optional desktop/tablet hero stats panel if supporting larger screens.
-4. Route toggle button.
-5. Route manager panel when selected stops exist.
-6. User location CTA when location is not available.
-7. Bottom station list sheet.
-8. Toast overlay.
+1. Map view as the primary screen surface.
+2. Search entry point.
+3. Location permission or locate-me control.
+4. Route mode entry point.
+5. Selected route stops panel/sheet.
+6. Nearby station list.
+7. Toast/snackbar overlay.
 
 ### 8.2 Colors and Visual Style
 
-Flutter theme should approximate current Tailwind look:
+Flutter theme should be clean, native-mobile friendly, and map-first:
 
-- Background/map shell: slate/dark neutral.
-- Cards: white with subtle transparency and shadow.
+- Background/map shell: neutral and unobtrusive.
+- Cards: readable with clear contrast and moderate shadow/elevation.
 - Primary: blue.
 - Available: emerald/green.
 - Busy: amber/yellow.
 - Offline: gray/red.
-- Rounded corners: large, typically 16-32 px.
-- Shadows: soft, not heavy.
-- Typography: compact, high hierarchy, similar to Inter/system font.
+- Rounded corners and elevation should follow the chosen Flutter design system.
+- Typography should prioritize legibility and clear hierarchy.
 
 ### 8.3 Bottom Sheet
 
@@ -624,7 +623,7 @@ States:
 Recommended Flutter implementation:
 
 - `AnimatedPositioned` or `DraggableScrollableSheet`.
-- Keep custom state buttons for exact behavior: `Sembunyikan`, `Tampilkan`, `Perluas`, `Ciutkan`.
+- Provide clear controls for hide/show/expand/collapse.
 
 ### 8.4 Route Manager UI
 
@@ -700,7 +699,7 @@ Recommended events:
 Deliverables:
 
 - New Flutter project scaffold.
-- App theme matching current UI.
+- App theme suitable for native Flutter mobile usage.
 - Environment config support for API keys.
 - Base networking client.
 - Core models with JSON parsing.
@@ -747,7 +746,7 @@ Acceptance criteria:
 
 Deliverables:
 
-- Search bar UI matching current app.
+- Search bar UI with equivalent search and suggestion behavior.
 - Debounced Mapbox suggestions.
 - Search submit behavior.
 - Search location marker.
@@ -764,14 +763,14 @@ Deliverables:
 
 - Hidden/collapsed/expanded bottom sheet.
 - Station summary header.
-- Compact station cards matching current app.
+- Compact station cards with equivalent station information.
 - Loading and empty states.
 
 Acceptance criteria:
 
 - Sheet can hide downward and be shown again.
 - Collapsed sheet does not cover too much map.
-- Card UI matches current style and information hierarchy.
+- Card UI shows the required station information clearly.
 
 ### Phase 6: Route Mode and Directions
 
@@ -789,7 +788,7 @@ Acceptance criteria:
 - User can add/remove/clear route stops.
 - Route starts only with 2+ stops.
 - Route line appears and camera fits bounds.
-- Route manager UI matches current compact style.
+- Route manager UI supports compact and expanded route management.
 
 ### Phase 7: Polish and QA
 
@@ -802,7 +801,7 @@ Deliverables:
 
 Acceptance criteria:
 
-- UI matches current app visually.
+- UI supports all required feature flows and is usable on mobile.
 - `flutter analyze` passes.
 - App tested on at least one Android and one iOS simulator/device.
 - API failure states are verified.
