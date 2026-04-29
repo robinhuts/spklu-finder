@@ -169,6 +169,7 @@ Required configuration:
   - Geocoding search.
   - Directions API.
 - `OPEN_CHARGE_MAP_API_KEY` for Open Charge Map station API.
+- Optional `GEOCODING_PROVIDER` config to choose `mapbox`, `nominatim`, or `mapbox_with_nominatim_fallback`.
 
 Recommended Flutter configuration:
 
@@ -266,7 +267,62 @@ else -> offline
 
 The current code contains a `busy` UI state, but Open Charge Map does not provide reliable real-time busy state in the implemented endpoint. Flutter should keep `busy` as a model/UI enum option for future support, but should not randomly assign busy status.
 
-### 6.3 Mapbox Geocoding API
+### 6.3 Search Location Extraction API: Nominatim / OpenStreetMap
+
+The repository contains evidence of an additional API previously used to extract coordinates from a search query: **Nominatim OpenStreetMap Search API**.
+
+Current code now uses Mapbox Geocoding for `searchLocation`, but `src/utils/api.ts` still contains a `NominatimResponse` model and git history shows the previous implementation used:
+
+```txt
+GET https://nominatim.openstreetmap.org/search
+```
+
+Legacy/current-history request parameters:
+
+| Parameter | Value |
+| --- | --- |
+| `format` | `json` |
+| `q` | `{query},Indonesia` |
+
+Required header:
+
+| Header | Value |
+| --- | --- |
+| `User-Agent` | App-specific user agent, e.g. `SPKLUFinderFlutter/1.0` |
+
+Example request:
+
+```txt
+https://nominatim.openstreetmap.org/search?format=json&q=jakarta%2CIndonesia
+```
+
+Response fields used:
+
+| Nominatim Field | Flutter Model / Usage |
+| --- | --- |
+| `lat` | Parse to `double latitude` |
+| `lon` | Parse to `double longitude` |
+| `display_name` | Human-readable result label |
+
+Flutter implementation requirement:
+
+- Support this API as a fallback or configurable provider for search-location extraction.
+- Do not call Nominatim on every keystroke unless the usage policy is reviewed; prefer using it on submitted search queries only.
+- If enabled for suggestions, debounce and rate-limit aggressively.
+- Include an app-specific `User-Agent` header.
+- Parse `lat` and `lon` strings safely.
+- If no results are returned, show `Lokasi tidak ditemukan`.
+
+Recommended provider strategy:
+
+```txt
+Primary geocoding provider: Mapbox Geocoding
+Fallback/legacy extraction provider: Nominatim OpenStreetMap Search
+Station provider: Open Charge Map
+Directions provider: Mapbox Directions
+```
+
+### 6.4 Mapbox Geocoding API
 
 Base endpoint:
 
@@ -310,7 +366,7 @@ Example suggestion request:
 https://api.mapbox.com/geocoding/v5/mapbox.places/jakarta.json?country=id&types=place,locality,neighborhood,address&limit=5&access_token=<MAPBOX_ACCESS_TOKEN>
 ```
 
-### 6.4 Mapbox Directions API
+### 6.5 Mapbox Directions API
 
 Endpoint:
 
