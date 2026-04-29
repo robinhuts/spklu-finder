@@ -11,7 +11,7 @@ import { useLiveTracking } from '../hooks/useLiveTracking';
 import { createLocationMarker } from './map/LocationMarker';
 import { clusterStations } from '../lib/utils';
 import { throttle } from '../lib/utils';
-import { MAPBOX_API_KEY } from '../utils/mapbox';
+import { MAPBOX_API_KEY, hasMapboxApiKey } from '../utils/mapbox';
 
 interface MapProps {
   stations: ChargingStation[];
@@ -32,6 +32,7 @@ const Map: React.FC<MapProps> = ({
   directionsRoute,
   searchedLocation
 }) => {
+  const hasMapboxConfig = hasMapboxApiKey();
   const {
     mapContainer,
     map,
@@ -261,6 +262,23 @@ const Map: React.FC<MapProps> = ({
   return (
     <div className="relative h-full w-full overflow-hidden bg-gray-100">
       <div ref={mapContainer} className="map-container h-full w-full" />
+
+      {!hasMapboxConfig && (
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-950 px-4 text-white">
+          <div className="max-w-md rounded-3xl border border-white/15 bg-white/10 p-6 text-center shadow-2xl backdrop-blur-xl">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/15 text-2xl">
+              ⚡
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight">Mapbox belum dikonfigurasi</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-200">
+              Tambahkan environment variable <span className="font-semibold text-cyan-200">VITE_MAPBOX_API_KEY</span> di Vercel, lalu redeploy agar peta dan pencarian lokasi tampil.
+            </p>
+            <div className="mt-5 rounded-2xl bg-slate-900/80 p-3 text-left text-xs text-slate-200">
+              Vercel → Project Settings → Environment Variables → VITE_MAPBOX_API_KEY
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="absolute bottom-4 left-4 rounded-2xl border border-white/60 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md">
         <p className="text-sm font-semibold text-slate-800">
