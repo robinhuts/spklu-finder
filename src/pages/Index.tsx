@@ -36,6 +36,7 @@ const Index = () => {
   
   // UI state
   const [expanded, setExpanded] = useState(false);
+  const [stationListHidden, setStationListHidden] = useState(false);
   const availableStations = filteredStations.filter(station => station.status === 'available').length;
   const fastChargingStations = filteredStations.filter(station =>
     station.connections.some(connection => (connection.powerKW || 0) >= 50)
@@ -661,7 +662,7 @@ const Index = () => {
       
       {/* Station List - Only show if user location is found */}
       {!locationRequired && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 animate-slide-up rounded-t-[2rem] border border-white/60 bg-background/95 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
+        <div className="absolute bottom-0 left-0 right-0 z-20 animate-slide-up rounded-t-[2rem] border border-white/60 bg-background/95 shadow-2xl shadow-slate-950/20 backdrop-blur-xl transition-transform duration-300">
           <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-muted-foreground/20" />
           <StationList 
             stations={filteredStations}
@@ -670,6 +671,13 @@ const Index = () => {
             onDirectionsClick={handleDirectionsClick}
             expanded={expanded}
             onToggleExpand={() => setExpanded(!expanded)}
+            hidden={stationListHidden}
+            onToggleHidden={() => {
+              setStationListHidden(!stationListHidden);
+              if (!stationListHidden) {
+                setExpanded(false);
+              }
+            }}
             isLoadingDirections={isLoadingDirections}
             selectedStops={selectedStops}
             isRoutePlanActive={isRoutePlanActive}
