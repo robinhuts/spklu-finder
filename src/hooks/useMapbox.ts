@@ -21,8 +21,9 @@ export const useMapbox = ({ apiKey, defaultLocation, onStationClick }: UseMapbox
 
   const initializeMap = useCallback(() => {
     if (!mapContainer.current || map.current) return;
+    if (!apiKey) return;
 
-    console.log("Initializing map with API key:", apiKey);
+    console.log("Initializing map");
     mapboxgl.accessToken = apiKey;
 
     const center = defaultLocation || { 
