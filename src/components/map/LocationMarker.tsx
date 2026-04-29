@@ -17,22 +17,24 @@ export const createLocationMarker = ({ map, location, markerRef }: LocationMarke
 
   // Create marker element
   const locationMarkerElement = document.createElement('div');
-  locationMarkerElement.className = 'location-marker flex items-center justify-center relative';
-  locationMarkerElement.style.width = '40px';
-  locationMarkerElement.style.height = '40px';
+  locationMarkerElement.className = 'location-marker';
+  locationMarkerElement.style.width = '24px';
+  locationMarkerElement.style.height = '24px';
   
   const markerPin = document.createElement('div');
-  markerPin.className = 'absolute w-6 h-6 bg-yellow-500 rounded-full border-2 border-white shadow-lg z-10';
+  markerPin.className = 'relative z-10 h-5 w-5 rounded-full border-2 border-white bg-amber-500 shadow-md';
   locationMarkerElement.appendChild(markerPin);
 
   const pulseRing = document.createElement('div');
-  pulseRing.className = 'absolute w-12 h-12 rounded-full border-4 border-yellow-300 animate-ping';
+  pulseRing.className = 'absolute h-10 w-10 rounded-full border-4 border-amber-300/80 animate-ping';
   locationMarkerElement.appendChild(pulseRing);
 
   // Create and store the marker
   markerRef.current = new mapboxgl.Marker({
     element: locationMarkerElement,
-    anchor: 'center'
+    anchor: 'center',
+    pitchAlignment: 'map',
+    rotationAlignment: 'map',
   })
     .setLngLat([location.longitude, location.latitude])
     .addTo(map);

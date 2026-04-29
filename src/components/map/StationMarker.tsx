@@ -12,7 +12,7 @@ export const createStationMarker = ({ station, map, onStationClick }: CreateStat
   const { latitude, longitude } = station.addressInfo;
   
   const markerElement = document.createElement('div');
-  markerElement.className = `station-marker flex items-center justify-center relative`;
+  markerElement.className = 'station-marker';
   markerElement.style.width = '32px';
   markerElement.style.height = '32px';
   
@@ -23,13 +23,13 @@ export const createStationMarker = ({ station, map, onStationClick }: CreateStat
                     station.status === 'busy' ? 'text-yellow-500' : 'text-red-500';
   
   const bgCircle = document.createElement('div');
-  bgCircle.className = `absolute inset-0 m-auto ${bgColor} rounded-full border border-gray-300`;
+  bgCircle.className = `${bgColor} flex h-full w-full items-center justify-center rounded-full border border-white shadow-md`;
   markerElement.appendChild(bgCircle);
   
   const icon = document.createElement('div');
-  icon.className = 'absolute inset-0 m-auto flex items-center justify-center';
+  icon.className = 'flex items-center justify-center';
   icon.innerHTML = `<svg class="${iconColor} z-10" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2h10"></path><path d="M9 11V7"></path><path d="M15 11V7"></path><path d="M11 15v-3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"></path><path d="M5 22v-3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3"></path><path d="M11 1v3"></path><circle cx="11" cy="11" r="2"></circle></svg>`;
-  markerElement.appendChild(icon);
+  bgCircle.appendChild(icon);
 
   // Generate a unique id for this marker to avoid duplicate event handlers
   const markerId = `marker-${station.id}-${Date.now()}`;
@@ -108,6 +108,8 @@ export const createStationMarker = ({ station, map, onStationClick }: CreateStat
   const marker = new mapboxgl.Marker({
     element: markerElement,
     anchor: 'center',
+    pitchAlignment: 'map',
+    rotationAlignment: 'map',
   })
     .setLngLat([longitude, latitude])
     .setPopup(popup)
